@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { Plus, Search, Wrench, CheckCircle2, AlertCircle, DollarSign, Clock, ChevronsRight, Printer, Edit2, Trash2, MessageCircle, Wallet, QrCode, CreditCard, Banknote } from "lucide-react";
-import { Page, PageHeader, Card, StatCard, Button, IconButton, Badge, SearchInput, EmptyState, LoadingState, ListRow, Modal, Field, MoneyInput } from "../../components/ui";
+import { Page, PageHeader, Card, StatCard, Button, IconButton, Badge, Segmented, SearchInput, EmptyState, LoadingState, ListRow, Modal, Field, MoneyInput } from "../../components/ui";
 import { useApi, useSession } from "../../contexts/SessionContext";
 import { useStoreData } from "../../contexts/StoreDataContext";
 import { useToast } from "../../contexts/ToastContext";
 import { formatBRL, formatDate, formatPhone, initials, onlyDigits, parseMoney } from "../../lib/format";
 import { SERVICE_FLOW, SERVICE_STATUS, printReceipt } from "../../lib/domain";
+import DateRangeFilter from "../../components/DateRangeFilter";
+import { inDateRange, describeRange, toInputDate, type DateRange } from "../../lib/dateRange";
 import type { ServiceOrder, ServiceStatus } from "../../data/types";
 
 const EMPTY = { customer_name: "", customer_phone: "", device: "", brand: "", model: "", issue: "", notes: "", value: "", part_cost: "" };
@@ -20,6 +22,11 @@ export default function ServiceOrdersPage() {
 
     const [status, setStatus] = useState<ServiceStatus | "abertas" | "todas">("abertas");
     const [search, setSearch] = useState("");
+    const [byDate, setByDate] = useState<"all" | "range">("all");
+    const [range, setRange] = useState<DateRange>(() => {
+        const now = new Date();
+        return { from: toInputDate(new Date(now.getFullYear(), now.getMonth(), 1)), to: toInputDate(now) };
+    });
     const [editing, setEditing] = useState<ServiceOrder | null>(null);
     const [formOpen, setFormOpen] = useState(false);
     const [form, setForm] = useState(EMPTY);
@@ -28,17 +35,23 @@ export default function ServiceOrdersPage() {
     const [method, setMethod] = useState<"pix" | "cartao" | "dinheiro">("pix");
 
     const open = orders.filter(o => o.status !== "entregue" && o.status !== "cancelado");
+    // Filtro pela data de entrada do aparelho (abertura da O.S.)
+    const dated = useMemo(
+        () => byDate === "all" ? orders : orders.filter(o => inDateRange(new Date(o.created_at), range)),
+        [orders, byDate, range]);
+    const datedOpen = dated.filter(o => o.status !== "entregue" && o.status !== "cancelado");
+
     const visible = useMemo(() => {
         const q = search.trim().toLowerCase();
-        return orders.filter(o => {
+        return dated.filter(o => {
             if (status === "abertas" && (o.status === "entregue" || o.status === "cancelado")) return false;
             if (status !== "abertas" && status !== "todas" && o.status !== status) return false;
             if (!q) return true;
             return [o.customer_name, o.device, o.model, o.issue, String(o.number)].some(v => (v || "").toLowerCase().includes(q));
         });
-    }, [orders, status, search]);
+    }, [dated, status, search]);
 
-    const counts = orders.reduce<Record<string, number>>((a, o) => { a[o.status] = (a[o.status] || 0) + 1; return a; }, {});
+    const counts = dated.reduce<Record<string, number>>((a, o) => { a[o.status] = (a[o.status] || 0) + 1; return a; }, {});
     const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const monthRevenue = orders.filter(o => o.paid && new Date(o.created_at) >= monthStart).reduce((a, o) => a + o.value, 0);
 
@@ -161,15 +174,26 @@ export default function ServiceOrdersPage() {
             <Card padded={false} className="overflow-hidden">
                 <div className="space-y-3 border-b border-line p-4">
                     <div className="-mx-1 flex gap-2 overflow-x-auto px-1">
-                        {chip("abertas", "Em aberto", open.length)}
+                        {chip("abertas", "Em aberto", datedOpen.length)}
                         {(Object.keys(SERVICE_STATUS) as ServiceStatus[]).map(s => chip(s, SERVICE_STATUS[s].label, counts[s]))}
-                        {chip("todas", "Todas", orders.length)}
+                        {chip("todas", "Todas", dated.length)}
                     </div>
-                    <SearchInput icon={Search} value={search} onChange={setSearch} placeholder="Cliente, aparelho, defeito ou nº da O.S." className="w-full md:w-96" />
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Segmented value={byDate} onChange={setByDate} options={[{ value: "all", label: "Qualquer data" }, { value: "range", label: "Período" }]} />
+                            {byDate === "range" && (
+                                <div className="basis-full pt-1">
+                                    <DateRangeFilter value={range} onChange={setRange} />
+                                    <p className="mt-2 text-xs text-fg-subtle">{dated.length} {dated.length === 1 ? "O.S. registrada" : "O.S. registradas"} {describeRange(range)}</p>
+                                </div>
+                            )}
+                        </div>
+                        <SearchInput icon={Search} value={search} onChange={setSearch} placeholder="Cliente, aparelho, defeito ou nº da O.S." className="w-full lg:w-96" />
+                    </div>
                 </div>
 
                 {loading ? <LoadingState /> : visible.length === 0 ? (
-                    <EmptyState icon={Wrench} title="Nenhuma ordem de serviço" description="Abra uma O.S. quando receber um aparelho para reparo."
+                    <EmptyState icon={Wrench} title="Nenhuma ordem de serviço" description={orders.length ? "Nenhuma O.S. encontrada com esses filtros." : "Abra uma O.S. quando receber um aparelho para reparo."}
                         action={<Button variant="primary" icon={Plus} onClick={startNew}>Nova O.S.</Button>} />
                 ) : (
                     <>

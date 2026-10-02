@@ -1,9 +1,11 @@
 // src/screens/app/SalesPage.tsx — movimento de vendas
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, Search, Smartphone, CreditCard, DollarSign, TrendingUp, Eye, EyeOff, Printer, Undo2, Receipt, Wrench, ShoppingBag, PackageX } from "lucide-react";
 import { Page, PageHeader, Card, StatCard, Button, IconButton, Badge, Segmented, SearchInput, EmptyState, LoadingState, ListRow } from "../../components/ui";
-import { useStoreData } from "../../contexts/StoreDataContext";
+import { useStoreData, SALES_WINDOW_DAYS } from "../../contexts/StoreDataContext";
+import DateRangeFilter from "../../components/DateRangeFilter";
+import { inDateRange, rangeBounds, describeRange, toInputDate, type DateRange } from "../../lib/dateRange";
 import { useSession, useApi } from "../../contexts/SessionContext";
 import { useToast } from "../../contexts/ToastContext";
 import { formatBRL, formatDate, formatTime } from "../../lib/format";
@@ -20,24 +22,49 @@ export default function SalesPage({ onNewSale }: { onNewSale: () => void }) {
     const { toast, confirm } = useToast();
 
     const [filter, setFilter] = useState<Filter>("today");
-    const [customDate, setCustomDate] = useState(() => new Date().toISOString().slice(0, 10));
+    const [range, setRange] = useState<DateRange>(() => {
+        const now = new Date();
+        return { from: toInputDate(new Date(now.getFullYear(), now.getMonth(), 1)), to: toInputDate(now) };
+    });
+    const [older, setOlder] = useState<{ range: DateRange; sales: Sale[] } | null>(null);
     const [methodFilter, setMethodFilter] = useState<MethodFilter>(null);
     const [search, setSearch] = useState("");
     const [hide, setHide] = useState(false);
 
     const money = (v: number) => (hide ? "R$ ••••" : formatBRL(v));
 
+    // O app mantém só os últimos meses em memória; períodos mais antigos são buscados no banco.
+    const needsOlder = useMemo(() => {
+        if (filter !== "custom") return false;
+        const { start } = rangeBounds(range);
+        const windowStart = new Date();
+        windowStart.setDate(windowStart.getDate() - SALES_WINDOW_DAYS + 1);
+        return !start || start < windowStart;
+    }, [filter, range]);
+
+    useEffect(() => {
+        if (!needsOlder) return;
+        let alive = true;
+        const { start, end } = rangeBounds(range);
+        api.listSales({ from: start ?? undefined, to: end ?? undefined })
+            .then(list => { if (alive) setOlder({ range, sales: list }); })
+            .catch(e => toast((e as Error).message, "error"));
+        return () => { alive = false; };
+    }, [needsOlder, range, sales, api, toast]);
+
+    const olderReady = !needsOlder || older?.range === range;
+
     const inPeriod = useMemo(() => {
         const now = new Date();
+        if (needsOlder) return older?.range === range ? older.sales : [];
         return sales.filter(s => {
             const d = new Date(s.created_at);
             if (filter === "today") return d >= startOfDay(now);
             if (filter === "week") return d >= new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
             if (filter === "month") return d >= new Date(now.getFullYear(), now.getMonth(), 1);
-            const [y, m, day] = customDate.split("-").map(Number);
-            return d >= new Date(y, m - 1, day) && d < new Date(y, m - 1, day + 1);
+            return inDateRange(d, range);
         });
-    }, [sales, filter, customDate]);
+    }, [sales, filter, range, needsOlder, older]);
 
     const stats = useMemo(() => {
         const acc = { total: 0, pix: 0, cartao: 0, dinheiro: 0, losses: 0 };
@@ -69,7 +96,7 @@ export default function SalesPage({ onNewSale }: { onNewSale: () => void }) {
         return [...map.entries()];
     }, [visible]);
 
-    const periodLabel = filter === "today" ? "hoje" : filter === "week" ? "nos últimos 7 dias" : filter === "month" ? "neste mês" : "na data";
+    const periodLabel = filter === "today" ? "hoje" : filter === "week" ? "nos últimos 7 dias" : filter === "month" ? "neste mês" : describeRange(range);
     const pct = (v: number) => (stats.total ? `${Math.round((v / stats.total) * 100)}% do total` : "—");
     const todayKey = formatDate(new Date());
 
@@ -122,18 +149,18 @@ export default function SalesPage({ onNewSale }: { onNewSale: () => void }) {
             </div>
 
             <Card padded={false} className="overflow-hidden">
-                <div className="flex flex-col gap-3 border-b border-line p-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-col gap-3 border-b border-line p-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="flex flex-wrap items-center gap-2">
                         <Segmented value={filter} onChange={setFilter} options={[
                             { value: "today", label: "Hoje" }, { value: "week", label: "7 dias" },
-                            { value: "month", label: "Mês" }, { value: "custom", label: "Data" },
+                            { value: "month", label: "Mês" }, { value: "custom", label: "Período" },
                         ]} />
-                        {filter === "custom" && <input type="date" value={customDate} onChange={e => setCustomDate(e.target.value)} className="ui-input w-[170px]" />}
+                        {filter === "custom" && <div className="basis-full pt-1"><DateRangeFilter value={range} onChange={setRange} /></div>}
                     </div>
                     <SearchInput icon={Search} value={search} onChange={setSearch} placeholder="Buscar item ou cliente..." className="w-full lg:w-72" />
                 </div>
 
-                {loading ? <LoadingState label="Carregando vendas..." /> : visible.length === 0 ? (
+                {loading || !olderReady ? <LoadingState label="Carregando vendas..." /> : visible.length === 0 ? (
                     <EmptyState icon={Receipt} title="Nenhuma venda encontrada"
                         description={search || methodFilter ? "Ajuste a busca ou os filtros." : `Não há operações registradas ${periodLabel}.`}
                         action={<Button variant="primary" icon={Plus} onClick={onNewSale}>Registrar venda</Button>} />
