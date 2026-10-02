@@ -94,7 +94,7 @@ export default function AppShell({ onShowPlans }: { onShowPlans: () => void }) {
                         </div>
                     </div>
                     <div className="px-4 pb-4">
-                        <button onClick={() => setSaleOpen(true)} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white shadow-lg shadow-black/20 hover:bg-primary-hover">
+                        <button onClick={() => setSaleOpen(true)} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.15)] hover:bg-primary-hover">
                             <Plus className="h-[18px] w-[18px]" strokeWidth={2.5} /> Nova operação
                         </button>
                     </div>
@@ -108,9 +108,8 @@ export default function AppShell({ onShowPlans }: { onShowPlans: () => void }) {
                                         const active = page === item.id;
                                         return (
                                             <button key={item.id} onClick={() => go(item.id)} aria-current={active ? "page" : undefined}
-                                                className={`relative flex h-10 w-full items-center gap-3 rounded-xl px-3 text-sm transition-colors ${active ? "bg-white/[0.08] font-medium text-white" : "text-white/60 hover:bg-white/[0.05] hover:text-white"}`}>
-                                                {active && <span className="absolute -left-3 bottom-2 top-2 w-1 rounded-r-full bg-primary" />}
-                                                <Icon className={`h-[18px] w-[18px] ${active ? "text-primary" : ""}`} />
+                                                className={`relative flex h-10 w-full items-center gap-3 rounded-xl px-3 text-sm transition-colors ${active ? "bg-white/[0.09] font-medium text-white shadow-[inset_0_0_0_1px_rgb(255_255_255/0.05)]" : "text-white/60 hover:bg-white/[0.05] hover:text-white"}`}>
+                                                                                                <Icon className={`h-[18px] w-[18px] ${active ? "text-white" : "text-white/45"}`} />
                                                 {item.name}
                                             </button>
                                         );
@@ -138,15 +137,15 @@ export default function AppShell({ onShowPlans }: { onShowPlans: () => void }) {
                         <StoreMark size="sm" />
                         <p className="min-w-0 flex-1 truncate text-sm font-semibold">{store?.name}</p>
                         <button onClick={toggleTheme} aria-label="Alternar tema" className="flex h-9 w-9 items-center justify-center rounded-xl text-white/70"><ThemeIcon size={18} /></button>
-                        <button onClick={() => setMoreOpen(true)} aria-label="Menu da conta" className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-semibold uppercase">{userName.charAt(0)}</button>
+                        <button onClick={() => setMoreOpen(true)} aria-label="Menu da conta" className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm font-semibold uppercase">{userName.charAt(0)}</button>
                     </header>
 
                     {isDemo && (
-                        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 bg-primary px-4 py-2 text-center text-xs text-white sm:text-sm">
-                            <span><b className="font-semibold">Modo demonstração</b> · dados fictícios, nada é salvo de verdade.</span>
+                        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-line bg-surface px-4 py-2.5 text-center text-xs text-fg-muted sm:justify-between sm:px-6 sm:text-sm lg:px-10">
+                            <span className="inline-flex items-center gap-2"><span className="rounded-md border border-warning/25 bg-warning-soft px-1.5 py-0.5 text-[11px] font-semibold text-warning">DEMO</span> Dados fictícios: nada é salvo de verdade.</span>
                             <span className="flex gap-2">
-                                <button onClick={onShowPlans} className="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 font-semibold text-primary-text hover:bg-white/90"><Sparkles size={13} /> Gostou? Ver planos</button>
-                                <button onClick={signOut} className="rounded-lg bg-white/20 px-2.5 py-1 font-medium hover:bg-white/30">Sair</button>
+                                <button onClick={onShowPlans} className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-white hover:bg-primary-hover"><Sparkles size={13} /> Gostou? Ver planos</button>
+                                <button onClick={signOut} className="inline-flex h-8 items-center rounded-lg border border-line px-3 text-xs font-medium text-fg-muted hover:bg-hover">Sair</button>
                             </span>
                         </div>
                     )}
@@ -161,7 +160,7 @@ export default function AppShell({ onShowPlans }: { onShowPlans: () => void }) {
                     <div className="grid h-16 grid-cols-5">
                         {all.filter(i => MOBILE_TABS.includes(i.id)).slice(0, 2).map(i => <Tab key={i.id} item={i} active={page === i.id} onClick={() => go(i.id)} />)}
                         <div className="flex items-start justify-center">
-                            <button onClick={() => setSaleOpen(true)} aria-label="Nova operação" className="-mt-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/30 active:scale-95">
+                            <button onClick={() => setSaleOpen(true)} aria-label="Nova operação" className="-mt-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-[var(--ui-shadow-md)] ring-4 ring-bg active:scale-95">
                                 <Plus className="h-6 w-6" strokeWidth={2.5} />
                             </button>
                         </div>
@@ -188,7 +187,7 @@ export default function AppShell({ onShowPlans }: { onShowPlans: () => void }) {
                                     const Icon = item.icon;
                                     return (
                                         <button key={item.id} onClick={() => go(item.id)}
-                                            className={`flex flex-col items-center gap-2 rounded-2xl border px-2 py-4 text-xs font-medium ${page === item.id ? "border-primary bg-primary-soft text-primary-text" : "border-line text-fg-muted"}`}>
+                                            className={`flex flex-col items-center gap-2 rounded-2xl border px-2 py-4 text-xs font-medium ${page === item.id ? "border-primary/40 bg-primary-soft text-primary-text" : "border-line text-fg-muted"}`}>
                                             <Icon size={20} /> {item.short || item.name}
                                         </button>
                                     );

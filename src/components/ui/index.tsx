@@ -52,7 +52,7 @@ export function CardHeader({ title, description, action, icon: Icon, className }
         <div className={cx("flex items-start justify-between gap-3 px-5 sm:px-6 py-4 border-b border-line", className)}>
             <div className="flex items-start gap-3 min-w-0">
                 {Icon && (
-                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary-text">
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-subtle text-fg-subtle">
                         <Icon className="h-4 w-4" />
                     </div>
                 )}
@@ -72,11 +72,11 @@ export type Tone = "neutral" | "primary" | "success" | "warning" | "danger" | "i
 
 const toneSoft: Record<Tone, string> = {
     neutral: "bg-subtle text-fg-muted border-line",
-    primary: "bg-primary-soft text-primary-text border-transparent",
-    success: "bg-success-soft text-success border-transparent",
-    warning: "bg-warning-soft text-warning border-transparent",
-    danger: "bg-danger-soft text-danger border-transparent",
-    info: "bg-info-soft text-info border-transparent",
+    primary: "bg-primary-soft text-primary-text border-primary/20",
+    success: "bg-success-soft text-success border-success/20",
+    warning: "bg-warning-soft text-warning border-warning/20",
+    danger: "bg-danger-soft text-danger border-danger/20",
+    info: "bg-info-soft text-info border-info/20",
 };
 
 
@@ -91,12 +91,26 @@ export function Badge({ tone = "neutral", children, dot, className }: { tone?: T
 
 /* ------------------------------------------------------------------ Stat */
 
-const toneSolid: Record<Tone, string> = {
-    neutral: "bg-fg-subtle", primary: "bg-primary", success: "bg-success",
-    warning: "bg-warning", danger: "bg-danger", info: "bg-info",
+const toneIcon: Record<Tone, string> = {
+    neutral: "text-fg-subtle", primary: "text-primary-text", success: "text-success",
+    warning: "text-warning", danger: "text-danger", info: "text-info",
 };
 
-export function StatCard({ label, value, hint, icon: Icon, tone = "neutral", onClick, active, className }: {
+/** Variação percentual em relação ao período anterior. */
+export function Delta({ value, inverse }: { value: number | null; inverse?: boolean }) {
+    if (value === null || !isFinite(value)) return null;
+    const up = value >= 0;
+    const good = inverse ? !up : up;
+    const pct = Math.abs(value) >= 10 ? Math.round(Math.abs(value)) : Math.abs(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+    return (
+        <span className={cx("inline-flex items-center gap-0.5 rounded-md px-1.5 py-px text-[11px] font-semibold tabular", Math.abs(value) < 0.5 ? "bg-subtle text-fg-subtle" : good ? "bg-success-soft text-success" : "bg-danger-soft text-danger")}>
+            {up ? "▲" : "▼"} {pct}%
+        </span>
+    );
+}
+
+export function StatCard({ label, value, hint, icon: Icon, tone = "neutral", onClick, active, className, delta }: {
+    delta?: ReactNode;
     label: string;
     value: ReactNode;
     hint?: ReactNode;
@@ -112,27 +126,26 @@ export function StatCard({ label, value, hint, icon: Icon, tone = "neutral", onC
             onClick={onClick}
             className={cx(
                 "group relative overflow-hidden text-left rounded-2xl border bg-surface p-4 sm:p-5 shadow-[var(--ui-shadow)] transition-all",
-                active ? "border-primary ring-4 ring-primary/10" : "border-line",
-                onClick && !active && "hover:border-line-strong hover:-translate-y-px",
+                active ? "border-primary/60 ring-[3px] ring-primary/10" : "border-line",
+                onClick && !active && "hover:border-line-strong hover:shadow-[var(--ui-shadow-md)]",
                 className
             )}
         >
-            <span className={cx("absolute inset-x-0 top-0 h-[3px] opacity-80", toneSolid[tone])} />
-            <div className="flex items-start gap-3">
+            <div className="flex items-center justify-between gap-2">
+                <span className="truncate text-[13px] font-medium text-fg-subtle">{label}</span>
                 {Icon && (
-                    <span className={cx("hidden sm:flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", toneSoft[tone])}>
-                        <Icon className="h-5 w-5" />
+                    <span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-subtle sm:flex">
+                        <Icon className={cx("h-4 w-4", toneIcon[tone])} />
                     </span>
                 )}
-                <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5 text-[13px] font-medium text-fg-subtle">
-                        {Icon && <Icon className={cx("sm:hidden h-3.5 w-3.5", tone === "neutral" ? "" : "opacity-80")} />}
-                        <span className="truncate">{label}</span>
-                    </div>
-                    <div className="mt-1 text-lg sm:text-2xl font-bold tracking-tight text-fg tabular truncate">{value}</div>
-                    {hint && <div className="mt-0.5 text-xs text-fg-subtle line-clamp-2">{hint}</div>}
-                </div>
             </div>
+            <div className="mt-2 text-lg sm:text-[26px] font-semibold tracking-tight text-fg tabular truncate">{value}</div>
+            {(hint || delta) && (
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-fg-subtle">
+                    {delta}
+                    {hint && <span className="line-clamp-2">{hint}</span>}
+                </div>
+            )}
         </Comp>
     );
 }
@@ -142,7 +155,7 @@ export function StatCard({ label, value, hint, icon: Icon, tone = "neutral", onC
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "success";
 
 const buttonVariant: Record<ButtonVariant, string> = {
-    primary: "bg-primary text-white hover:bg-primary-hover border-transparent shadow-sm shadow-primary/25",
+    primary: "bg-primary text-white hover:bg-primary-hover border-transparent shadow-[var(--ui-shadow),inset_0_1px_0_rgb(255_255_255/0.12)]",
     secondary: "bg-surface text-fg border-line hover:bg-hover shadow-[var(--ui-shadow)]",
     ghost: "bg-transparent text-fg-muted border-transparent hover:bg-hover hover:text-fg",
     danger: "bg-surface text-danger border-line hover:bg-danger-soft",
@@ -253,8 +266,8 @@ export function EmptyState({ icon: Icon, title, description, action, className }
 }) {
     return (
         <div className={cx("flex flex-col items-center justify-center text-center px-6 py-14", className)}>
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-soft text-primary-text">
-                <Icon className="h-6 w-6" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-line bg-subtle text-fg-subtle shadow-[var(--ui-shadow)]">
+                <Icon className="h-5 w-5" />
             </div>
             <p className="mt-4 text-[15px] font-semibold text-fg">{title}</p>
             {description && <p className="mt-1 max-w-sm text-sm text-fg-subtle">{description}</p>}
@@ -266,7 +279,7 @@ export function EmptyState({ icon: Icon, title, description, action, className }
 export function LoadingState({ label = "Carregando..." }: { label?: string }) {
     return (
         <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 text-sm text-fg-subtle">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <Loader2 className="h-6 w-6 animate-spin text-fg-faint" />
             {label}
         </div>
     );
@@ -281,7 +294,7 @@ export function Meter({ value, max, tone = "primary" }: { value: number; max: nu
         warning: "bg-warning", danger: "bg-danger", info: "bg-info",
     };
     return (
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-subtle border border-line/60">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-hover">
             <div className={cx("h-full rounded-full transition-all", bar[tone])} style={{ width: `${pct}%` }} />
         </div>
     );

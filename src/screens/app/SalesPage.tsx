@@ -89,7 +89,7 @@ export default function SalesPage({ onNewSale }: { onNewSale: () => void }) {
     };
 
     const kindIcon = (s: Sale) => s.kind === "servico" ? Wrench : s.kind === "perda" ? PackageX : ShoppingBag;
-    const kindTone = (s: Sale) => s.kind === "servico" ? "bg-info-soft text-info" : s.kind === "perda" ? "bg-danger-soft text-danger" : "bg-primary-soft text-primary-text";
+    const kindTone = (s: Sale) => s.kind === "servico" ? "bg-info-soft text-info" : s.kind === "perda" ? "bg-danger-soft text-danger" : "bg-subtle text-fg-muted border border-line";
 
     const actions = (s: Sale) => {
         const inactive = s.status === "estornada" || s.status === "cancelada";

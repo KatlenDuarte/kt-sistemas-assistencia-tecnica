@@ -77,6 +77,26 @@ export function periodStart(p: Period): Date | null {
     return null;
 }
 
+/** Janela equivalente anterior (ex.: hoje → ontem até a mesma hora), para comparação. */
+export function previousWindow(p: Period): { start: Date; end: Date } | null {
+    const now = new Date();
+    const start = periodStart(p);
+    if (!start) return null;
+    if (p === "month") {
+        const prevStart = new Date(start.getFullYear(), start.getMonth() - 1, 1);
+        const lastDay = new Date(start.getFullYear(), start.getMonth(), 0).getDate();
+        const prevEnd = new Date(prevStart.getFullYear(), prevStart.getMonth(), Math.min(now.getDate(), lastDay), now.getHours(), now.getMinutes());
+        return { start: prevStart, end: prevEnd };
+    }
+    const days = p === "today" ? 1 : 7;
+    const shift = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate() - days, d.getHours(), d.getMinutes(), d.getSeconds());
+    return { start: shift(start), end: shift(now) };
+}
+
+export const PERIOD_COMPARE_LABEL: Record<Period, string> = {
+    today: "vs. ontem", "7d": "vs. 7 dias anteriores", month: "vs. mês passado", all: "",
+};
+
 export const PERIOD_LABEL: Record<Period, string> = {
     today: "hoje", "7d": "nos últimos 7 dias", month: "neste mês", all: "nos últimos 120 dias",
 };

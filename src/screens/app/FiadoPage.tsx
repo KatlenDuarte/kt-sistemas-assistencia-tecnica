@@ -109,7 +109,7 @@ export default function FiadoPage() {
                                 <li key={s.id} className="p-4 sm:p-5">
                                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
                                         <div className="flex min-w-0 flex-1 gap-3">
-                                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-soft text-sm font-semibold text-primary-text">{initials(s.customer_name)}</span>
+                                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line bg-subtle text-sm font-semibold text-fg-muted">{initials(s.customer_name)}</span>
                                             <div className="min-w-0 flex-1 space-y-2">
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     <h3 className="text-[15px] font-semibold text-fg">{s.customer_name || "Cliente"}</h3>

@@ -1,13 +1,16 @@
 // src/screens/app/DashboardPage.tsx — visão geral da loja
 
 import { useMemo, useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
 import { Wallet, Receipt, BookOpenText, PackageX, TrendingUp, ShoppingBag, Wrench, PackageCheck, Users } from "lucide-react";
-import { Page, PageHeader, Card, CardHeader, StatCard, Segmented, EmptyState, LoadingState, Badge, Meter } from "../../components/ui";
+import { Page, PageHeader, Card, CardHeader, StatCard, Segmented, EmptyState, LoadingState, Badge, Delta } from "../../components/ui";
 import { useStoreData } from "../../contexts/StoreDataContext";
 import { useSession } from "../../contexts/SessionContext";
 import { formatBRL, formatDate, formatTime, initials } from "../../lib/format";
-import { PAYMENT_LABEL, PERIOD_LABEL, SERVICE_STATUS, describeItems, isRevenue, paymentBreakdown, periodStart, type Period } from "../../lib/domain";
+import { PAYMENT_LABEL, PERIOD_LABEL, PERIOD_COMPARE_LABEL, SERVICE_STATUS, describeItems, isRevenue, paymentBreakdown, periodStart, previousWindow, type Period } from "../../lib/domain";
+
+const MIX_COLORS = { pix: "var(--ui-chart-2)", cartao: "var(--ui-chart-1)", dinheiro: "var(--ui-chart-3)", fiado: "var(--ui-chart-4)" } as const;
+const pctChange = (cur: number, prev: number) => prev > 0 ? ((cur - prev) / prev) * 100 : null;
 
 export default function DashboardPage({ go }: { go: (page: string) => void }) {
     const { sales, products, orders, loading } = useStoreData();
@@ -27,8 +30,14 @@ export default function DashboardPage({ go }: { go: (page: string) => void }) {
             byProduct.set(i.name, { qty: cur.qty + i.qty, total: cur.total + i.qty * i.price });
         }));
         const pending = sales.filter(s => s.status === "fiado_pendente");
+        const win = previousWindow(period);
+        const prev = win ? sales.filter(s => { const d = new Date(s.created_at); return d >= win.start && d < win.end && isRevenue(s); }) : [];
+        const prevRevenue = prev.reduce((a, s) => a + s.total, 0);
+        const ticket = valid.length ? revenue / valid.length : 0;
         return {
-            revenue, count: valid.length, ticket: valid.length ? revenue / valid.length : 0, mix,
+            revenue, count: valid.length, ticket, mix,
+            revenueDelta: win ? pctChange(revenue, prevRevenue) : null,
+            ticketDelta: win && prev.length ? pctChange(ticket, prevRevenue / prev.length) : null,
             top: [...byProduct.entries()].map(([name, v]) => ({ name, ...v })).sort((a, b) => b.qty - a.qty).slice(0, 5),
             recent: valid.slice(0, 6),
             pending, pendingTotal: pending.reduce((a, s) => a + s.total, 0),
@@ -70,15 +79,19 @@ export default function DashboardPage({ go }: { go: (page: string) => void }) {
             />
 
             <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-                <StatCard label="Faturamento" value={formatBRL(stats.revenue)} icon={Wallet} tone="primary" hint={`${stats.count} ${stats.count === 1 ? "venda" : "vendas"}`} onClick={() => go("sales")} />
-                <StatCard label="Ticket médio" value={formatBRL(stats.ticket)} icon={Receipt} tone="info" hint="Valor médio por venda" />
+                <StatCard label="Faturamento" value={formatBRL(stats.revenue)} icon={Wallet} tone="primary" onClick={() => go("sales")}
+                    delta={period !== "all" && <Delta value={stats.revenueDelta} />}
+                    hint={stats.revenueDelta !== null && period !== "all" ? PERIOD_COMPARE_LABEL[period] : `${stats.count} ${stats.count === 1 ? "venda" : "vendas"}`} />
+                <StatCard label="Ticket médio" value={formatBRL(stats.ticket)} icon={Receipt} tone="info"
+                    delta={period !== "all" && <Delta value={stats.ticketDelta} />}
+                    hint={`${stats.count} ${stats.count === 1 ? "venda" : "vendas"}`} />
                 <StatCard label="Fiado a receber" value={formatBRL(stats.pendingTotal)} icon={BookOpenText} tone="danger" hint={`${stats.pending.length} em aberto`} onClick={() => go("fiado")} />
                 <StatCard label="Estoque baixo" value={stats.low.length} icon={PackageX} tone="warning" hint={stats.low.length ? "Produtos para repor" : "Tudo em dia"} onClick={() => go("products")} />
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                 <Card padded={false} className="xl:col-span-2">
-                    <CardHeader title="Faturamento diário" description="Últimos 14 dias" icon={TrendingUp}
+                    <CardHeader title="Faturamento diário" description={`Últimos 14 dias · média de ${formatBRL(chart.reduce((a, d) => a + d.total, 0) / 14)} por dia`} icon={TrendingUp}
                         action={<span className="text-sm font-semibold text-fg tabular">{formatBRL(chart.reduce((a, d) => a + d.total, 0))}</span>} />
                     <div className="h-[260px] px-2 pt-4 pb-2">
                         <ResponsiveContainer width="100%" height="100%">
@@ -91,7 +104,9 @@ export default function DashboardPage({ go }: { go: (page: string) => void }) {
                                     contentStyle={{ background: "var(--ui-surface)", border: "1px solid var(--ui-line)", borderRadius: 12, fontSize: 12 }}
                                     labelStyle={{ color: "var(--ui-fg-subtle)" }} itemStyle={{ color: "var(--ui-fg)" }}
                                     formatter={v => [formatBRL(Number(v)), "Faturamento"]} />
-                                <Bar dataKey="total" fill="var(--ui-primary)" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                                <Bar dataKey="total" radius={[4, 4, 0, 0]} maxBarSize={36}>
+                                    {chart.map((d, i) => <Cell key={d.key} fill="var(--ui-primary)" fillOpacity={i === chart.length - 1 ? 1 : 0.4} />)}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -99,17 +114,28 @@ export default function DashboardPage({ go }: { go: (page: string) => void }) {
 
                 <Card padded={false}>
                     <CardHeader title="Formas de pagamento" description={`Recebido ${PERIOD_LABEL[period]}`} icon={Wallet} />
-                    <div className="space-y-4 p-5 sm:p-6">
-                        {mixTotal === 0 ? <EmptyState icon={Wallet} title="Sem recebimentos" className="py-6" /> :
-                            (["pix", "cartao", "dinheiro", "fiado"] as const).map(k => (
-                                <div key={k} className="space-y-1.5">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-fg-muted">{PAYMENT_LABEL[k]}</span>
-                                        <span className="font-medium text-fg tabular">{formatBRL(stats.mix[k])}<span className="ml-2 text-xs font-normal text-fg-subtle">{Math.round((stats.mix[k] / mixTotal) * 100)}%</span></span>
-                                    </div>
-                                    <Meter value={stats.mix[k]} max={mixTotal} tone={k === "fiado" ? "danger" : "primary"} />
+                    <div className="p-5 sm:p-6">
+                        {mixTotal === 0 ? <EmptyState icon={Wallet} title="Sem recebimentos" className="py-6" /> : (
+                            <>
+                                <p className="text-xs text-fg-subtle">Total recebido</p>
+                                <p className="mt-0.5 text-2xl font-semibold tracking-tight text-fg tabular">{formatBRL(mixTotal)}</p>
+                                <div className="mt-4 flex h-2.5 gap-0.5 overflow-hidden rounded-full">
+                                    {(["pix", "cartao", "dinheiro", "fiado"] as const).filter(k => stats.mix[k] > 0).map(k => (
+                                        <span key={k} style={{ width: `${(stats.mix[k] / mixTotal) * 100}%`, background: MIX_COLORS[k] }} />
+                                    ))}
                                 </div>
-                            ))}
+                                <ul className="mt-5 space-y-3">
+                                    {(["pix", "cartao", "dinheiro", "fiado"] as const).map(k => (
+                                        <li key={k} className="flex items-center gap-3 text-sm">
+                                            <span className="h-2.5 w-2.5 shrink-0 rounded-[3px]" style={{ background: MIX_COLORS[k] }} />
+                                            <span className="flex-1 text-fg-muted">{PAYMENT_LABEL[k]}</span>
+                                            <span className="w-10 text-right text-xs text-fg-subtle tabular">{Math.round((stats.mix[k] / mixTotal) * 100)}%</span>
+                                            <span className="w-24 text-right font-medium text-fg tabular">{formatBRL(stats.mix[k])}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
                     </div>
                 </Card>
             </div>

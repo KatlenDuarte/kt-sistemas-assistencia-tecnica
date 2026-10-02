@@ -11,7 +11,7 @@ import { supabase, friendlyError } from "../../lib/supabase";
 import { formatBRL, formatDate } from "../../lib/format";
 import { COMPANY, planById, whatsappLink } from "../../config/brand";
 
-const COLORS = ["#f26419", "#e11d48", "#7c3aed", "#2563eb", "#0891b2", "#059669", "#ca8a04", "#0f172a"];
+const COLORS = ["#3e63dd", "#1e3a8a", "#0f766e", "#0e7490", "#6e56cf", "#be123c", "#c2410c", "#334155"];
 
 export default function SettingsPage() {
     const api = useApi();
@@ -23,7 +23,7 @@ export default function SettingsPage() {
     const [phone, setPhone] = useState(store?.contact_phone || "");
     const [doc, setDoc] = useState(store?.document || "");
     const [address, setAddress] = useState(store?.address || "");
-    const [color, setColor] = useState(store?.brand_color || "#f26419");
+    const [color, setColor] = useState(store?.brand_color || "#3e63dd");
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [logoPreview, setLogoPreview] = useState<string | null>(store?.logo_url || null);
     const [saving, setSaving] = useState(false);

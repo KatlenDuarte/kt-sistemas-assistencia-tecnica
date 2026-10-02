@@ -14,7 +14,7 @@ export const DEMO_STORE: Store = {
     document: null,
     address: "Rua Exemplo, 123 · Centro",
     logo_url: null,
-    brand_color: "#f26419",
+    brand_color: "#3e63dd",
     plan: "anual",
     status: "active",
     expires_at: null,

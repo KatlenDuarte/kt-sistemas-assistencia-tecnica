@@ -57,7 +57,7 @@ export function PendingPaymentScreen() {
             </div>
             <ol className="mt-6 space-y-3 text-sm">
                 {["Clique no botão abaixo e fale com a gente.", "Enviamos a chave PIX e você realiza o pagamento.", "Liberamos o acesso e o sistema abre com a sua logo."].map((t, i) => (
-                    <li key={t} className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">{i + 1}</span><span className="pt-0.5 text-fg-muted">{t}</span></li>
+                    <li key={t} className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface text-xs font-semibold text-fg">{i + 1}</span><span className="pt-0.5 text-fg-muted">{t}</span></li>
                 ))}
             </ol>
             <ContactButtons message={message} />

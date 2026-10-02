@@ -76,7 +76,7 @@ export default function ReportsPage() {
             startY: 30,
             head: [["Faturamento", "Vendas", "Ticket médio", "Lucro estimado", "PIX", "Cartão", "Dinheiro", "Fiado"]],
             body: [[formatBRL(m.revenue), String(m.count), formatBRL(m.ticket), formatBRL(m.profit), formatBRL(m.mix.pix), formatBRL(m.mix.cartao), formatBRL(m.mix.dinheiro), formatBRL(m.mix.fiado)]],
-            headStyles: { fillColor: [242, 100, 25] }, styles: { fontSize: 8 },
+            headStyles: { fillColor: [30, 41, 59] }, styles: { fontSize: 8 },
         });
         autoTable(pdf, {
             startY: (pdf as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8,

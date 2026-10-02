@@ -17,7 +17,8 @@ function AuthLayout({ children, aside }: { children: ReactNode; aside?: ReactNod
     return (
         <div className="grid min-h-screen bg-bg font-sans lg:grid-cols-[1fr_1.05fr]">
             <aside className="relative hidden overflow-hidden bg-nav p-12 text-white lg:flex lg:flex-col lg:justify-between">
-                <div className="pointer-events-none absolute -right-32 -top-32 h-[460px] w-[460px] rounded-full bg-[#f26419]/25 blur-[120px]" />
+                <div className="pointer-events-none absolute inset-0 [background-image:radial-gradient(rgb(255_255_255/0.06)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent)]" />
+                <div className="pointer-events-none absolute -right-32 -top-32 h-[460px] w-[460px] rounded-full bg-[#4b6bdc]/20 blur-[120px]" />
                 <a href="#/" className="relative"><KtLogo light /></a>
                 <div className="relative max-w-md">{aside ?? (
                     <>
@@ -25,7 +26,7 @@ function AuthLayout({ children, aside }: { children: ReactNode; aside?: ReactNod
                         <p className="mt-4 text-white/60">Vendas, estoque, fiado, ordens de serviço e caixa — no computador e no celular.</p>
                         <ul className="mt-8 space-y-3 text-sm text-white/80">
                             {["Sua logo e sua cor no sistema", "Dados isolados e seguros para cada loja", "Suporte direto pelo WhatsApp"].map(t => (
-                                <li key={t} className="flex items-center gap-3"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f26419]/25 text-[#fb923c]"><Check size={12} strokeWidth={3} /></span>{t}</li>
+                                <li key={t} className="flex items-center gap-3"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white/80"><Check size={12} strokeWidth={3} /></span>{t}</li>
                             ))}
                         </ul>
                     </>
@@ -43,7 +44,7 @@ function AuthLayout({ children, aside }: { children: ReactNode; aside?: ReactNod
 
 const PrimaryButton = ({ loading, children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { loading?: boolean }) => (
     <button {...props} disabled={props.disabled || loading}
-        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white shadow-sm shadow-primary/25 transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50">
+        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white shadow-[var(--ui-shadow-md)] transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50">
         {loading && <Loader2 size={16} className="animate-spin" />}{children}
     </button>
 );
@@ -183,7 +184,7 @@ export function SignupPage({ initialPlan }: { initialPlan?: string | null }) {
             <p className="mt-1 text-3xl font-extrabold tabular">{formatBRL(selected.price)} <span className="text-sm font-medium text-white/60">{selected.period}</span></p>
             {(storeName || logoPreview) && (
                 <div className="mt-6 flex items-center gap-3 rounded-2xl bg-white/5 p-3">
-                    {logoPreview ? <img src={logoPreview} alt="" className="h-11 w-11 rounded-xl bg-white object-contain p-1" /> : <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#f26419] font-bold">{storeName.charAt(0).toUpperCase()}</span>}
+                    {logoPreview ? <img src={logoPreview} alt="" className="h-11 w-11 rounded-xl bg-white object-contain p-1" /> : <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 font-bold">{storeName.charAt(0).toUpperCase()}</span>}
                     <div className="min-w-0"><p className="truncate font-semibold">{storeName || "Sua loja"}</p><p className="text-xs text-white/50">Prévia no sistema</p></div>
                 </div>
             )}
@@ -217,10 +218,10 @@ export function SignupPage({ initialPlan }: { initialPlan?: string | null }) {
                     <div className="mt-6 space-y-3">
                         {PLANS.map(p => (
                             <button key={p.id} onClick={() => setPlan(p.id)}
-                                className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition-colors ${plan === p.id ? "border-primary bg-primary-soft ring-4 ring-primary/10" : "border-line bg-surface hover:bg-hover"}`}>
+                                className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition-colors ${plan === p.id ? "border-primary/50 bg-primary-soft ring-[3px] ring-primary/10" : "border-line bg-surface hover:bg-hover"}`}>
                                 <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${plan === p.id ? "border-primary bg-primary" : "border-line-strong"}`}>{plan === p.id && <Check size={12} className="text-white" strokeWidth={3} />}</span>
                                 <span className="min-w-0 flex-1">
-                                    <span className="flex items-center gap-2 font-semibold text-fg">{p.name}{p.highlight && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-white">{p.highlight}</span>}</span>
+                                    <span className="flex items-center gap-2 font-semibold text-fg">{p.name}{p.highlight && <span className="rounded-full border border-primary/25 bg-surface px-2 py-0.5 text-[10px] font-semibold text-primary-text">{p.highlight}</span>}</span>
                                     <span className="block text-xs text-fg-subtle">{p.description}</span>
                                 </span>
                                 <span className="text-right"><span className="block font-bold text-fg tabular">{formatBRL(p.price)}</span><span className="text-xs text-fg-subtle">{p.period}</span></span>

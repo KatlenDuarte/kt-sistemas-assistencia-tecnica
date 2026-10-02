@@ -110,7 +110,7 @@ export default function ProductsPage() {
             startY: 30,
             head: [["Produto", "Categoria", "Código", "Estoque", "Mín.", "Custo", "Preço"]],
             body: visible.map(p => [p.name, categoryLabel(p.category), p.barcode || "", String(p.stock), String(p.min_stock), p.cost_price != null ? formatBRL(p.cost_price) : "", formatBRL(p.price)]),
-            headStyles: { fillColor: [242, 100, 25] },
+            headStyles: { fillColor: [30, 41, 59] },
             styles: { fontSize: 8 },
         });
         pdf.save(`estoque_${new Date().toISOString().slice(0, 10)}.pdf`);
@@ -142,7 +142,7 @@ export default function ProductsPage() {
                             const n = c.id === "all" ? products.length : products.filter(p => p.category === c.id).length;
                             return (
                                 <button key={c.id} onClick={() => setCategory(c.id)}
-                                    className={`inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm font-medium ${category === c.id ? "bg-primary-soft text-primary-text" : "text-fg-subtle hover:bg-hover hover:text-fg"}`}>
+                                    className={`inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium ${category === c.id ? "border-line bg-surface text-fg shadow-[var(--ui-shadow)]" : "border-transparent text-fg-subtle hover:bg-hover hover:text-fg"}`}>
                                     {c.label}<span className="text-xs opacity-60 tabular">{n}</span>
                                 </button>
                             );

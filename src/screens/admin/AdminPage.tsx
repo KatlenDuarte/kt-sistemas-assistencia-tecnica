@@ -123,7 +123,7 @@ export default function AdminPage() {
                                 <li key={s.id} className="flex flex-col gap-3 p-4 sm:p-5 lg:flex-row lg:items-center">
                                     <div className="flex min-w-0 flex-1 items-center gap-3">
                                         {s.logo_url ? <img src={s.logo_url} alt="" className="h-11 w-11 shrink-0 rounded-xl border border-line bg-white object-contain p-1" />
-                                            : <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-sm font-bold text-primary-text">{initials(s.name)}</span>}
+                                            : <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line bg-subtle text-sm font-semibold text-fg-muted">{initials(s.name)}</span>}
                                         <div className="min-w-0">
                                             <p className="flex flex-wrap items-center gap-2 font-semibold text-fg">{s.name}<Badge tone={st.tone} dot>{st.label}</Badge></p>
                                             <p className="truncate text-xs text-fg-subtle">{s.contact_email}{s.contact_phone ? ` · ${formatPhone(s.contact_phone)}` : ""} · desde {formatDate(new Date(s.created_at))}</p>

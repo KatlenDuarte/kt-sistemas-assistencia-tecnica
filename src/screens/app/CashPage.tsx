@@ -111,7 +111,7 @@ export default function CashPage() {
                 ["Valor contado", formatBRL(parseMoney(counted))],
                 ["Diferença", formatBRL(diff)],
             ],
-            headStyles: { fillColor: [242, 100, 25] },
+            headStyles: { fillColor: [30, 41, 59] },
         });
         const y = (pdf as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
         autoTable(pdf, {

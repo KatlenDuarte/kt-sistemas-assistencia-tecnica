@@ -36,65 +36,84 @@
   --color-danger-soft: var(--ui-danger-soft);
   --color-info: var(--ui-info);
   --color-info-soft: var(--ui-info-soft);
+  --color-chart-1: var(--ui-chart-1);
+  --color-chart-2: var(--ui-chart-2);
+  --color-chart-3: var(--ui-chart-3);
+  --color-chart-4: var(--ui-chart-4);
+  --color-chart-5: var(--ui-chart-5);
 }
 
 :root {
-  --ui-primary: #f26419;
+  /* Azul índigo sóbrio: cor padrão do sistema. Cada loja pode trocar a sua. */
+  --ui-primary: #3e63dd;
 }
 
 :root:not(.dark) {
   color-scheme: light;
-  --ui-bg: #f3f5f9;
+  --ui-bg: #f5f6f8;
   --ui-surface: #ffffff;
-  --ui-subtle: #f7f8fb;
-  --ui-hover: #f0f2f7;
-  --ui-line: #e3e7ee;
-  --ui-line-strong: #cfd5df;
-  --ui-fg: #0f172a;
-  --ui-fg-muted: #3c4a5f;
-  --ui-fg-subtle: #64748b;
-  --ui-fg-faint: #94a3b8;
-  --ui-nav: #0b1424;
-  --ui-primary-hover: color-mix(in oklab, var(--ui-primary) 86%, black);
-  --ui-primary-soft: color-mix(in oklab, var(--ui-primary) 11%, transparent);
-  --ui-primary-text: color-mix(in oklab, var(--ui-primary) 78%, black);
-  --ui-success: #059669;
-  --ui-success-soft: rgb(5 150 105 / 0.1);
-  --ui-warning: #b45309;
-  --ui-warning-soft: rgb(217 119 6 / 0.12);
-  --ui-danger: #dc2626;
-  --ui-danger-soft: rgb(220 38 38 / 0.09);
-  --ui-info: #2563eb;
-  --ui-info-soft: rgb(37 99 235 / 0.09);
-  --ui-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 2px 6px -2px rgb(15 23 42 / 0.06);
-  --ui-shadow-lg: 0 20px 48px -16px rgb(15 23 42 / 0.25);
+  --ui-subtle: #f9fafb;
+  --ui-hover: #f2f4f7;
+  --ui-line: #e6e8ec;
+  --ui-line-strong: #d0d5dd;
+  --ui-fg: #101828;
+  --ui-fg-muted: #344054;
+  --ui-fg-subtle: #667085;
+  --ui-fg-faint: #98a2b3;
+  --ui-nav: #0f172a;
+  --ui-primary-hover: color-mix(in oklab, var(--ui-primary) 88%, black);
+  --ui-primary-soft: color-mix(in oklab, var(--ui-primary) 8%, white);
+  --ui-primary-text: color-mix(in oklab, var(--ui-primary) 80%, black);
+  --ui-success: #067647;
+  --ui-success-soft: #ecfdf3;
+  --ui-warning: #b54708;
+  --ui-warning-soft: #fffaeb;
+  --ui-danger: #c0362c;
+  --ui-danger-soft: #fef3f2;
+  --ui-info: #0e7090;
+  --ui-info-soft: #f0f9ff;
+  /* Paleta de gráficos: tons médios, distintos entre si e calmos */
+  --ui-chart-1: #4c6fd8;
+  --ui-chart-2: #2a9d8f;
+  --ui-chart-3: #d4a24c;
+  --ui-chart-4: #d9707f;
+  --ui-chart-5: #8b7fc7;
+  --ui-shadow: 0 1px 2px rgb(16 24 40 / 0.05);
+  --ui-shadow-md: 0 1px 2px rgb(16 24 40 / 0.04), 0 4px 12px -2px rgb(16 24 40 / 0.08);
+  --ui-shadow-lg: 0 24px 48px -12px rgb(16 24 40 / 0.18);
 }
 
 :root.dark {
   color-scheme: dark;
-  --ui-bg: #080d17;
-  --ui-surface: #0f1726;
-  --ui-subtle: #121b2c;
-  --ui-hover: #172236;
-  --ui-line: #1e2a3f;
-  --ui-line-strong: #2b3a54;
-  --ui-fg: #f1f5f9;
-  --ui-fg-muted: #b7c2d3;
-  --ui-fg-subtle: #8796ad;
-  --ui-fg-faint: #5b6a82;
-  --ui-nav: #0b1220;
-  --ui-primary-hover: color-mix(in oklab, var(--ui-primary) 82%, white);
-  --ui-primary-soft: color-mix(in oklab, var(--ui-primary) 16%, transparent);
-  --ui-primary-text: color-mix(in oklab, var(--ui-primary) 70%, white);
-  --ui-success: #34d399;
-  --ui-success-soft: rgb(52 211 153 / 0.12);
-  --ui-warning: #fbbf24;
-  --ui-warning-soft: rgb(251 191 36 / 0.12);
-  --ui-danger: #f87171;
-  --ui-danger-soft: rgb(248 113 113 / 0.12);
-  --ui-info: #60a5fa;
-  --ui-info-soft: rgb(96 165 250 / 0.12);
-  --ui-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+  --ui-bg: #0b0f17;
+  --ui-surface: #111723;
+  --ui-subtle: #141b28;
+  --ui-hover: #19212f;
+  --ui-line: #222a38;
+  --ui-line-strong: #323c4e;
+  --ui-fg: #f2f4f7;
+  --ui-fg-muted: #c4cad4;
+  --ui-fg-subtle: #8c95a5;
+  --ui-fg-faint: #5f6878;
+  --ui-nav: #0d121c;
+  --ui-primary-hover: color-mix(in oklab, var(--ui-primary) 85%, white);
+  --ui-primary-soft: color-mix(in oklab, var(--ui-primary) 14%, transparent);
+  --ui-primary-text: color-mix(in oklab, var(--ui-primary) 62%, white);
+  --ui-success: #47cd89;
+  --ui-success-soft: rgb(71 205 137 / 0.1);
+  --ui-warning: #f5b546;
+  --ui-warning-soft: rgb(245 181 70 / 0.1);
+  --ui-danger: #f17c72;
+  --ui-danger-soft: rgb(241 124 114 / 0.1);
+  --ui-info: #5cc0e6;
+  --ui-info-soft: rgb(92 192 230 / 0.1);
+  --ui-chart-1: #6f8ce6;
+  --ui-chart-2: #3fb5a6;
+  --ui-chart-3: #e0b562;
+  --ui-chart-4: #e58796;
+  --ui-chart-5: #a397dc;
+  --ui-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  --ui-shadow-md: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 20px -6px rgb(0 0 0 / 0.45);
   --ui-shadow-lg: 0 24px 56px -16px rgb(0 0 0 / 0.7);
 }
 
@@ -115,7 +134,7 @@ html.theme-transition *::after {
 
 @layer components {
   .ui-input {
-    @apply w-full h-10 rounded-xl border border-line bg-surface px-3 text-sm text-fg placeholder:text-fg-faint outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:opacity-60;
+    @apply w-full h-10 rounded-xl border border-line bg-surface px-3 text-sm text-fg placeholder:text-fg-faint outline-none transition focus:border-primary focus:ring-[3px] focus:ring-primary/12 disabled:opacity-60;
   }
   textarea.ui-input { @apply h-auto py-2.5 resize-y; }
   select.ui-input { @apply pr-8 cursor-pointer; }
@@ -146,7 +165,7 @@ html.theme-transition *::after {
 * { scrollbar-width: thin; scrollbar-color: var(--ui-line-strong) transparent; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: var(--ui-line-strong); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
-::selection { background: color-mix(in oklab, var(--ui-primary) 25%, transparent); }
+::selection { background: color-mix(in oklab, var(--ui-primary) 20%, transparent); }
 input[type="date"], input[type="month"] { color-scheme: inherit; }
 
 @media print {

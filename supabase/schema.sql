@@ -22,7 +22,7 @@ create table if not exists public.stores (
     document      text,
     address       text,
     logo_url      text,
-    brand_color   text not null default '#f26419',
+    brand_color   text not null default '#3e63dd',
     plan          text not null default 'mensal' check (plan in ('mensal', 'anual', 'vitalicio')),
     status        text not null default 'pending' check (status in ('pending', 'active', 'blocked')),
     expires_at    timestamptz,
